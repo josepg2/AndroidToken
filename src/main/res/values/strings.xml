@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">My Application</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!-- Preferences  -->
+    <string name="action_settings">Settings</string>
+    <string name="doctor_details">Doctor Details</string>
+    <string name="doctor_name">Doctor Name</string>
+    <string name="doctor_id">Doctor ID</string>
+    <string name="doctor_hospital_name">Hospital Name</string>
+    <string name="connectivity_details">Connectivity</string>
+    <string name="ip_address">Display IP Address</string>
+    <string name="port_id">Port ID</string>
+</resources>
