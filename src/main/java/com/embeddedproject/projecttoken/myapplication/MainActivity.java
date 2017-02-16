@@ -10,6 +10,8 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.PreferenceManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -28,9 +30,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, Listener {
 
     CollapsingToolbarLayout collapsingToolbarLayout;
+    RecyclerView recyclerView;
+    DbHelper dbHelper;
+    ListAdapter adapter;
+
     final Context c = this;
     TextView textToUpdate;
     Integer TokenCount = 0;
@@ -81,6 +87,13 @@ public class MainActivity extends AppCompatActivity
         textToUpdate = (TextView) findViewById(R.id.token_count);
         textToUpdate.setText(Integer.toString(TokenCount));
 
+        dbHelper = DbHelper.getInstance(getApplicationContext());
+
+        recyclerView = (RecyclerView) findViewById(R.id.rv_tokenlist);
+        adapter = new ListAdapter(this, dbHelper.getAllTokens());
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
 
         ImageButton countBackButton = (ImageButton) findViewById(R.id.back_button);
         countBackButton.setOnClickListener(new Button.OnClickListener() {
@@ -104,6 +117,8 @@ public class MainActivity extends AppCompatActivity
                 textToUpdate = (TextView) findViewById(R.id.token_count);
                 textToUpdate.setText(Integer.toString(TokenCount + 1));
                 TokenCount++;
+                dbHelper.insertTokenDetail(TokenCount, true);
+                adapter.addElementToTokenList(TokenCount, true);
                 Log.d("ButtonClick", "Count Forward Clicked");
             }
         });
@@ -239,6 +254,8 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_reset) {
             TokenCount = 0;
+            dbHelper.deleteAll();
+            adapter.clearAllTokens();
             textToUpdate = (TextView) findViewById(R.id.token_count);
             textToUpdate.setText(Integer.toString(TokenCount));
         }
@@ -248,4 +265,8 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    @Override
+    public void tokenToCall(int tokentocall) {
+
+    }
 }
