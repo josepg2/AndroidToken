@@ -13,4 +13,10 @@
     <string name="connectivity_details">Connectivity</string>
     <string name="ip_address">Display IP Address</string>
     <string name="port_id">Port ID</string>
+
+    <!-- Bottom Navigation -->
+    <string name="list_all">All</string>
+    <string name="list_unattented">Unattented</string>
+    <string name="enter_token_number">Token</string>
+
 </resources>

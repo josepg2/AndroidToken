@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.text.LoginFilter;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -63,7 +64,32 @@ public class DbHelper extends SQLiteOpenHelper {
         return mDbHelper;
     }
 
-    public void insertTokenDetail(int tokenNumber, boolean tokenStatus) {
+    public boolean isTokenPresent(int tokenNumber) {
+
+        boolean tokenDetail = false;
+
+        String USER_DETAIL_SELECT_QUERY = "SELECT * FROM " + TABLE_TOKENLIST + " WHERE " + TOKEN + " = " + Integer.toString(tokenNumber);
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(USER_DETAIL_SELECT_QUERY, null);
+
+        try {
+            if (cursor.moveToFirst()) {
+                tokenDetail = true;
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "Error while trying to get posts from database");
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+
+        return tokenDetail;
+
+    }
+
+    public void insertTokenDetail(TokenData tokenData) {
 
         SQLiteDatabase db = getWritableDatabase();
 
@@ -71,8 +97,8 @@ public class DbHelper extends SQLiteOpenHelper {
 
         try {
             ContentValues values = new ContentValues();
-            values.put(TOKEN, tokenNumber);
-            values.put(STATUS, tokenStatus);
+            values.put(TOKEN, tokenData.tokenNumber);
+            values.put(STATUS, tokenData.tokenStatus);
 
             db.insertOrThrow(TABLE_TOKENLIST, null, values);
             db.setTransactionSuccessful();
@@ -114,6 +140,81 @@ public class DbHelper extends SQLiteOpenHelper {
 
         return tokenDetail;
 
+    }
+
+    public List<TokenData> getUnAttentedTokens() {
+
+        List<TokenData> tokenDetail = new ArrayList<>();
+
+        String USER_DETAIL_SELECT_QUERY = "SELECT * FROM " + TABLE_TOKENLIST + " WHERE " + STATUS + " = 0";
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(USER_DETAIL_SELECT_QUERY, null);
+
+        try {
+            if (cursor.moveToFirst()) {
+                do {
+                    TokenData tokenData = new TokenData();
+                    tokenData.tokenNumber = cursor.getInt(cursor.getColumnIndex(TOKEN));
+                    tokenData.tokenStatus = cursor.getInt(cursor.getColumnIndex(STATUS)) == 1 ? true : false;
+
+                    tokenDetail.add(tokenData);
+
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "Error while trying to get posts from database");
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+
+        return tokenDetail;
+
+    }
+
+    public void updateTokenStatus (int tokenNumber, boolean tokenStatus) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        db.beginTransaction();
+        Log.d("INSIDEDB", Integer.toString(tokenNumber) + " " + tokenStatus);
+        try {
+            ContentValues values = new ContentValues();
+            values.put(STATUS, tokenStatus);
+
+            db.update(TABLE_TOKENLIST, values, TOKEN + "=?", new String[]{Integer.toString(tokenNumber)});
+            db.setTransactionSuccessful();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Log.d(TAG, "Error while trying to add post to database");
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    public boolean getTokenStatus (int tokenNumber){
+
+        boolean tokenStatus = Boolean.parseBoolean(null);
+
+        String USER_DETAIL_SELECT_QUERY = "SELECT * FROM " + TABLE_TOKENLIST + " WHERE " + TOKEN + " = " + Integer.toString(tokenNumber);
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(USER_DETAIL_SELECT_QUERY, null);
+
+        try {
+            if (cursor.moveToFirst()) {
+                tokenStatus = cursor.getInt(cursor.getColumnIndex(STATUS)) == 1 ;
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "Error while trying to get posts from database");
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+
+        return tokenStatus;
     }
 
     void deleteAll() {

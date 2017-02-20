@@ -6,12 +6,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,17 +32,22 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, Listener {
+        implements NavigationView.OnNavigationItemSelectedListener, Listener{
 
     CollapsingToolbarLayout collapsingToolbarLayout;
     RecyclerView recyclerView;
     DbHelper dbHelper;
     ListAdapter adapter;
 
+    int LastNonCalledToken = 0;
+
     final Context c = this;
     TextView textToUpdate;
-    Integer TokenCount = 0;
+    TokenData currentToken = new TokenData(0, true);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,12 +55,10 @@ public class MainActivity extends AppCompatActivity
         Log.d("ONCREATE", "Oncreate");
 
         if(savedInstanceState != null) {
-            TokenCount = savedInstanceState.getInt("TokenCount");
-            Log.d("ONCREATE", "SavedNotNull");
-            Log.d("ONCREATE", Integer.toString(TokenCount));
+            currentToken.setTokenNumber(savedInstanceState.getInt("TokenCount"));
         } else{
             SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-            TokenCount = sharedPref.getInt("TokenCount", TokenCount);
+            currentToken.setTokenNumber(sharedPref.getInt("TokenCount", currentToken.tokenNumber));
         }
 
         setContentView(R.layout.activity_main);
@@ -75,7 +81,7 @@ public class MainActivity extends AppCompatActivity
                     scrollRange = appBarLayout.getTotalScrollRange();
                 }
                 if (scrollRange + verticalOffset == 0) {
-                    collapsingToolbarLayout.setTitle("Token : "+TokenCount);
+                    collapsingToolbarLayout.setTitle("Token : "+currentToken.tokenNumber);
                     isShow = true;
                 } else if(isShow) {
                     collapsingToolbarLayout.setTitle("");
@@ -85,28 +91,33 @@ public class MainActivity extends AppCompatActivity
         });
 
         textToUpdate = (TextView) findViewById(R.id.token_count);
-        textToUpdate.setText(Integer.toString(TokenCount));
+        textToUpdate.setText(Integer.toString(currentToken.tokenNumber));
 
         dbHelper = DbHelper.getInstance(getApplicationContext());
 
         recyclerView = (RecyclerView) findViewById(R.id.rv_tokenlist);
-        adapter = new ListAdapter(this, dbHelper.getAllTokens());
+        adapter = new ListAdapter(this, currentToken, dbHelper.getUnAttentedTokens());
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        RecyclerView.ItemAnimator animator = recyclerView.getItemAnimator();
+        if(animator instanceof SimpleItemAnimator){
+            ((SimpleItemAnimator)animator).setSupportsChangeAnimations(false);
+        }
 
 
         ImageButton countBackButton = (ImageButton) findViewById(R.id.back_button);
         countBackButton.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 //Do stuff here
-                textToUpdate = (TextView) findViewById(R.id.token_count);
-
-                if(TokenCount > 1) {
-                    TokenCount--;
+                if(LastNonCalledToken == 0){
+                    showNoUnattentedTokensBehind();
+                    return;
+                }else{
+                    goToToken(LastNonCalledToken);
+                    LastNonCalledToken = 0;
                 }
-                textToUpdate.setText(Integer.toString(TokenCount));
 
-                Log.d("ButtonClick", "Count Back Clicked");
+
             }
         });
 
@@ -114,12 +125,15 @@ public class MainActivity extends AppCompatActivity
         countForwardButton.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 //Do stuff here
-                textToUpdate = (TextView) findViewById(R.id.token_count);
-                textToUpdate.setText(Integer.toString(TokenCount + 1));
-                TokenCount++;
-                dbHelper.insertTokenDetail(TokenCount, true);
-                adapter.addElementToTokenList(TokenCount, true);
-                Log.d("ButtonClick", "Count Forward Clicked");
+                if(currentToken.tokenNumber == 0){
+                    currentToken.setTokenNumber(1);
+                    currentToken.setTokenStatus(true);
+                    adapter.notifyItemChanged(0);
+                    textToUpdate = (TextView) findViewById(R.id.token_count);
+                    textToUpdate.setText(Integer.toString(currentToken.tokenNumber));
+                    return;
+                }
+                goToToken( currentToken.tokenNumber + 1 );
             }
         });
 
@@ -138,12 +152,14 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    @Override
     protected void onPause() {
         super.onPause();
         Log.d("lifecycle","onPause invoked");
         SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putInt("TokenCount", TokenCount);
+        editor.putInt("TokenCount", currentToken.tokenNumber);
+        editor.putBoolean("TokenStatus", currentToken.tokenStatus);
         editor.commit();
     }
 
@@ -167,16 +183,16 @@ public class MainActivity extends AppCompatActivity
     protected void onSaveInstanceState(Bundle outState) {
         Log.d("ONSaveInst", "InsideSavingInstance");
         super.onSaveInstanceState(outState);
-        outState.putInt("TokenCount", TokenCount);
+        outState.putInt("TokenCount", currentToken.tokenNumber);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         Log.d("ONRESTInst", "InsideRestoreInstance");
         super.onRestoreInstanceState(savedInstanceState);
-        TokenCount = savedInstanceState.getInt("TokenCount");
+        currentToken.setTokenNumber(savedInstanceState.getInt("TokenCount"));
         textToUpdate = (TextView) findViewById(R.id.token_count);
-        textToUpdate.setText(Integer.toString(TokenCount));
+        textToUpdate.setText(Integer.toString(currentToken.tokenNumber));
     }
 
     private void loadSavedPreferences(NavigationView navigationView) {
@@ -253,11 +269,11 @@ public class MainActivity extends AppCompatActivity
             alertDialogAndroid.show();
 
         } else if (id == R.id.nav_reset) {
-            TokenCount = 0;
+            currentToken.setTokenNumber(0);
             dbHelper.deleteAll();
             adapter.clearAllTokens();
             textToUpdate = (TextView) findViewById(R.id.token_count);
-            textToUpdate.setText(Integer.toString(TokenCount));
+            textToUpdate.setText(Integer.toString(currentToken.tokenNumber));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -266,7 +282,86 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void tokenToCall(int tokentocall) {
+    public void updateTokenStatus(int token, boolean status) {
+        dbHelper.updateTokenStatus(token,status);
+    }
+
+    @Override
+    public void listAllTokens() {
+        adapter.updateListOfTokens(dbHelper.getAllTokens());
+    }
+
+    @Override
+    public void listUnattentedTokens() {
+        adapter.updateListOfTokens(dbHelper.getUnAttentedTokens());
+    }
+
+    @Override
+    public void enterTokenNumber() {
 
     }
+
+    @Override
+    public void updateTokenHeaderAndTitle(TokenData tokenData) {
+        currentToken.setTokenNumber(tokenData.tokenNumber);
+        currentToken.setTokenStatus(true);
+        adapter.notifyItemChanged(0);
+        textToUpdate = (TextView) findViewById(R.id.token_count);
+        textToUpdate.setText(Integer.toString(currentToken.tokenNumber));
+    }
+
+    public void goToToken(int newTokenNumber){
+        boolean isNewTokenPresent = dbHelper.isTokenPresent(newTokenNumber);
+        boolean isOldTokenPresent = dbHelper.isTokenPresent(currentToken.tokenNumber);
+
+        int oldTokennumber = currentToken.tokenNumber;
+        boolean oldTokenStatus = currentToken.tokenStatus;
+
+        TokenData oldTokenData = new TokenData(oldTokennumber,oldTokenStatus);
+
+        if(isNewTokenPresent){
+            boolean tokenStatus = dbHelper.getTokenStatus(newTokenNumber);
+            if(!tokenStatus){
+                updateTokenHeaderAndTitle(new TokenData(newTokenNumber, true));
+            }else{
+                showTokenPrensentDialog();
+            }
+        }else{
+            //update header
+            //updatedlist
+            if(!isOldTokenPresent) {
+                dbHelper.insertTokenDetail(oldTokenData);
+                adapter.addElementToTokenList(oldTokenData);
+            }
+            updateTokenHeaderAndTitle(new TokenData(newTokenNumber, true));
+        }
+    }
+
+    private void showTokenPrensentDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("Already Called");
+        builder.setMessage("This is message");
+
+        builder.setCancelable(false);
+        builder.setPositiveButton("OK", null);
+        builder.setNegativeButton("RECALL",null);
+
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void showNoUnattentedTokensBehind() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("All Previous Tokens are Served");
+        builder.setMessage("This is message");
+
+
+        builder.setPositiveButton("OK", null);
+
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
 }

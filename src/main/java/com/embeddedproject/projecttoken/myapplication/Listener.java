@@ -5,5 +5,13 @@ package com.embeddedproject.projecttoken.myapplication;
  */
 
 public interface Listener {
-    void tokenToCall(int tokentocall);
+    void updateTokenStatus(int token, boolean status);
+
+    void listAllTokens();
+
+    void listUnattentedTokens();
+
+    void enterTokenNumber();
+
+    void updateTokenHeaderAndTitle(TokenData tokenData);
 }
