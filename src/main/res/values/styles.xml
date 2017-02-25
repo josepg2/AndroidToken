@@ -20,4 +20,18 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="EnterTokenDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <!--buttons color-->
+        <item name="colorAccent">#64FFDA</item>
+        <!--title and message color-->
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <!--dialog background-->
+        <item name="android:windowBackground">@drawable/dialog_background_dark</item>
+    </style>
+
+    <style name="EnterTokenEditText" parent="Theme.AppCompat.Light">
+        <item name="colorControlNormal">#00BFA5</item>
+        <item name="colorControlActivated">#64FFDA</item>
+    </style>
+
 </resources>

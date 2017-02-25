@@ -26,11 +26,14 @@
         <android.support.v7.preference.EditTextPreference
             android:title="@string/ip_address"
             android:key="pref_key_ip_address"
+            android:inputType="number|numberDecimal"
+            android:digits="0123456789."
             android:summary="Enter IP Address">
         </android.support.v7.preference.EditTextPreference>
         <android.support.v7.preference.EditTextPreference
             android:title="@string/port_id"
             android:key="pref_key_port_id"
+            android:inputType="number"
             android:summary="Enter Port ID">
         </android.support.v7.preference.EditTextPreference>
     </android.support.v7.preference.PreferenceCategory>

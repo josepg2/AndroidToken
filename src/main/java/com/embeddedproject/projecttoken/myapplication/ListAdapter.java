@@ -32,12 +32,14 @@ public class ListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     List<TokenData> tokenList = new ArrayList<>();
     LayoutInflater inflator;
     Listener listener;
+    IsSocketFree isSocketFree;
 
-    public ListAdapter (Context context, TokenData tokenHeader ,List<TokenData> tokenList1){
+    public ListAdapter (Context context, TokenData tokenHeader ,List<TokenData> tokenList1,IsSocketFree isSocketFree){
         this.context = context;
         this.tokenHeader = tokenHeader;
         this.tokenList = tokenList1;
         this.listener = (Listener) context;
+        this.isSocketFree = isSocketFree;
         inflator = LayoutInflater.from(context);
     }
 
@@ -159,7 +161,11 @@ public class ListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             TokenData clickedToken = new TokenData();
             clickedToken.setTokenNumber(Integer.parseInt(token_number.getText().toString()));
             clickedToken.setTokenStatus(check_box.isChecked());
-            listener.updateTokenHeaderAndTitle(clickedToken);
+            if(isSocketFree.isSocketBusy()){
+                return;
+            }
+            isSocketFree.blockSocket();
+            listener.goToToken(clickedToken.tokenNumber);
         }
     }
 

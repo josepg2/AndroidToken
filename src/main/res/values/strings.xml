@@ -19,4 +19,8 @@
     <string name="list_unattented">Unattented</string>
     <string name="enter_token_number">Token</string>
 
+
+    <!-- Enter Token Number Dialog -->
+    <string name="enter_token_dialog_title">TOKEN NUMBER</string>
+
 </resources>

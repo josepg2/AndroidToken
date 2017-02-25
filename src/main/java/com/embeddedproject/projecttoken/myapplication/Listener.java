@@ -14,4 +14,10 @@ public interface Listener {
     void enterTokenNumber();
 
     void updateTokenHeaderAndTitle(TokenData tokenData);
+
+    void updateViewAndDb(TokenData tokenData);
+
+    void goToToken(int newTokenNumber);
+
+    boolean getTokenConnectionStatus();
 }

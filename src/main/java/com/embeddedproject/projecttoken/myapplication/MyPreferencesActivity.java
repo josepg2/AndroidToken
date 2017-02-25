@@ -26,12 +26,16 @@ public class MyPreferencesActivity extends AppCompatActivity {
             addPreferencesFromResource(R.xml.app_preferences);
             SharedPreferences sp = getPreferenceScreen().getSharedPreferences();
             EditTextPreference editTextPref;
-            String prefs[] = {"pref_key_user_name", "pref_key_user_id", "pref_key_hospital_name", "pref_key_ip_address", "pref_key_port_id"};
-            String default_prefs[] = {"Enter Doctor Name", "Enter Doctor Code", "Enter Hospital Name","Enter Server IP Address", "Enter Server Port ID"};
+            String prefs[] = {"pref_key_user_name", "pref_key_user_id", "pref_key_hospital_name", "pref_key_ip_address"};
+            String default_prefs[] = {"Enter Doctor Name", "Enter Doctor Code", "Enter Hospital Name","Enter Server IP Address" };
             for (int i = 0; i < prefs.length ; i++){
                 editTextPref = (EditTextPreference) findPreference(prefs[i]);
                 editTextPref.setSummary(sp.getString(prefs[i], default_prefs[i]));
             }
+
+            EditTextPreference editPortId;
+            editPortId  = (EditTextPreference) findPreference("pref_key_port_id");
+            editPortId.setSummary(sp.getString("pref_key_port_id", "Enter Server Port ID"));
         }
 
         @Override
