@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/enableWifiCoordinatorLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal">
+
+        <TextView
+            android:text="Enable Wifi"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView6"
+            android:layout_marginTop="20dp"
+            android:layout_width="250dp"
+            android:textSize="24sp" />
+
+        <TextView
+            android:text="Please enable wifi to connect to the display server."
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:id="@+id/textView9"
+            android:textSize="18sp"
+            android:layout_width="250dp" />
+
+        <Switch
+            android:layout_width="240dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="start"
+            android:id="@+id/enable_wifi_switch" />
+
+        <Button
+            android:text="NEXT"
+            android:layout_width="250dp"
+            android:layout_marginTop="10dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/enable_wifi_next"
+            style="?android:attr/buttonBarButtonStyle"
+            android:background="@drawable/next_button_ripple"
+            android:textColor="#0d494b"/>
+
+
+    </LinearLayout>
+</android.support.design.widget.CoordinatorLayout>

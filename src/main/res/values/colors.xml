@@ -2,7 +2,9 @@
 <resources>
     <color name="colorPrimary">#166568</color>
     <color name="colorPrimaryDark">#0D494B</color>
-    <color name="colorAccent">#298E95</color>
+    <color name="colorAccent">#e15320</color>
 
     <color name="listbottomline">#5Bc4CD</color>
+
+    <color name="initialSetupOrange">#e15320</color>
 </resources>

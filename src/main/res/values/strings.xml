@@ -1,5 +1,15 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">Token Manager</string>
+
+    <!-- Activity Initial Setup -->
+    <string name="initial_setup_header">Welcome !!!</string>
+    <string name="initial_setup_message">Add Doctor Details and Connectivity Details. Contact representative if you don\'t have the password.</string>
+    <string name="initial_setup_doctor_name">Doctor Name</string>
+    <string name="initial_setup_doctor_code">Doctor Code</string>
+    <string name="initial_setup_hospital_name">Hospital Name</string>
+    <string name="initial_setup_display_server_ip">Display Server IP</string>
+    <string name="initial_setup_port_id">Display Server Port ID</string>
+    <string name="initial_setup_password">Password</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

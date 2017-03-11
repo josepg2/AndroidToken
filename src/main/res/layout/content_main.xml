@@ -20,7 +20,7 @@
         android:paddingTop="@dimen/activity_vertical_margin"
         android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context="com.embeddedproject.projecttoken.myapplication.MainActivity"
+        tools:context="com.embeddedproject.projecttoken.tokenManager.MainActivity"
         tools:showIn="@layout/app_bar_main">
 
 
