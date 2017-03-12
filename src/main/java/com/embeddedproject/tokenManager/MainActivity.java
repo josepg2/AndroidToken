@@ -256,6 +256,7 @@ public class MainActivity extends AppCompatActivity
         ip_address = sharedPreferences.getString("pref_key_ip_address", "192.168.1.1");
         port_number = sharedPreferences.getString("pref_key_port_id", "8000");
         doctor_name = sharedPreferences.getString("pref_key_user_name", "Doctor Name");
+        doctor_id = sharedPreferences.getString("pref_key_user_id", "Doctor ID");
         hospital_name = sharedPreferences.getString("pref_key_hospital_name", "Hospital Name");
         View headerView = navigationView.getHeaderView(0);
         textToUpdate = (TextView) headerView.findViewById(R.id.drawerDoctorName);
@@ -691,6 +692,7 @@ public class MainActivity extends AppCompatActivity
             String key = itr.next();
             Object value = postDataParameters.get(key);
 
+
             if (first)
                 first = false;
             else
@@ -701,6 +703,7 @@ public class MainActivity extends AppCompatActivity
             result.append(URLEncoder.encode(value.toString(), "UTF-8"));
 
         }
+
         return result.toString();
     }
 
